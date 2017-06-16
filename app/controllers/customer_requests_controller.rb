@@ -4,15 +4,13 @@ class CustomerRequestsController < ApplicationController
 
   def index
     if current_customer
-      @requests = current_customer.customer_requests.where(
-        "expires_date >= ?", 
-        10.days.ago
-      )
+      @requests = current_customer.customer_requests.where('expires_date < ?', DateTime.now)
       @customer = current_customer
       render "index.html.erb"
     elsif current_company
       if current_company.status == "Active"
-        @requests = current_company.eligible_customer_requests
+        date = Date.today.to_s
+        @requests = current_company.eligible_customer_requests.select{"expires_date" >= Date.today.to_s}
         @company = current_company
         render "index.html.erb"
       elsif current_company.status == "Pending"
